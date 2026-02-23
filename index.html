@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PageTurner — Pre-loved Books at Pocket Prices</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #f5f0e8;
+      --warm: #e8dcc8;
+      --brown: #5c3d2e;
+      --rust: #c0522a;
+      --gold: #d4a74a;
+      --dark: #1a1209;
+      --text: #2c1e0f;
+      --muted: #7a6350;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--dark);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      border-bottom: 3px solid var(--gold);
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; font-weight: 900;
+      color: var(--gold); letter-spacing: -0.5px;
+    }
+    .logo span { color: #fff; }
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav ul a { color: var(--warm); text-decoration: none; font-size: 0.9rem; font-weight: 500; letter-spacing: 0.5px; transition: color 0.2s; }
+    nav ul a:hover { color: var(--gold); }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--dark);
+      padding: 5rem 2rem 4rem;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '📚';
+      position: absolute; font-size: 18rem; opacity: 0.04;
+      top: 50%; left: 50%; transform: translate(-50%,-50%);
+      pointer-events: none;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: var(--rust); color: #fff;
+      font-size: 0.75rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+      padding: 0.3rem 1rem; border-radius: 2px; margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 900; color: #fff; line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+    .hero h1 em { color: var(--gold); font-style: italic; }
+    .hero p {
+      color: var(--warm); font-size: 1.1rem; max-width: 520px; margin: 0 auto 2rem;
+      line-height: 1.7;
+    }
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--rust); color: #fff;
+      padding: 0.85rem 2rem; border-radius: 4px;
+      font-weight: 500; text-decoration: none; font-size: 0.95rem;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: #a8441f; transform: translateY(-2px); }
+    .btn-outline {
+      border: 2px solid var(--gold); color: var(--gold);
+      padding: 0.85rem 2rem; border-radius: 4px;
+      font-weight: 500; text-decoration: none; font-size: 0.95rem;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-outline:hover { background: var(--gold); color: var(--dark); transform: translateY(-2px); }
+
+    /* ── SECTION HEADER ── */
+    .section-header {
+      text-align: center; padding: 3.5rem 2rem 2rem;
+    }
+    .section-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700;
+      color: var(--brown);
+    }
+    .section-header p { color: var(--muted); margin-top: 0.5rem; font-size: 0.95rem; }
+    .divider {
+      width: 60px; height: 3px; background: var(--gold);
+      margin: 1rem auto 0;
+    }
+
+    /* ── BOOK GRID ── */
+    .books-section { padding: 0 2rem 4rem; max-width: 1200px; margin: 0 auto; }
+    .filter-bar {
+      display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; justify-content: center;
+    }
+    .filter-btn {
+      background: transparent; border: 1.5px solid var(--warm);
+      color: var(--muted); padding: 0.4rem 1.1rem; border-radius: 99px;
+      font-size: 0.82rem; cursor: pointer; transition: all 0.2s; font-family: inherit;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--brown); border-color: var(--brown); color: #fff;
+    }
+
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+    .book-card {
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(92,61,46,0.08);
+      transition: transform 0.25s, box-shadow 0.25s;
+      cursor: pointer;
+      animation: fadeUp 0.5s ease both;
+    }
+    .book-card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(92,61,46,0.15); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .book-cover {
+      height: 220px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 5rem;
+      position: relative; overflow: hidden;
+    }
+    .sold-badge {
+      position: absolute; top: 10px; right: 10px;
+      background: var(--rust); color: #fff;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 1px;
+      padding: 0.2rem 0.5rem; border-radius: 3px; text-transform: uppercase;
+    }
+    .condition-badge {
+      position: absolute; bottom: 10px; left: 10px;
+      font-size: 0.65rem; font-weight: 500; padding: 0.2rem 0.6rem;
+      border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .condition-good { background: #d4edda; color: #155724; }
+    .condition-great { background: #cce5ff; color: #004085; }
+    .condition-ok { background: #fff3cd; color: #856404; }
+
+    .book-info { padding: 1rem; }
+    .book-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem; font-weight: 700; line-height: 1.3;
+      color: var(--dark); margin-bottom: 0.25rem;
+    }
+    .book-author { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.6rem; }
+    .book-genre {
+      display: inline-block;
+      background: var(--warm); color: var(--brown);
+      font-size: 0.7rem; padding: 0.15rem 0.6rem; border-radius: 99px;
+      font-weight: 500; margin-bottom: 0.7rem;
+    }
+    .book-price-row { display: flex; align-items: center; justify-content: space-between; margin-top: 0.5rem; }
+    .book-price {
+      font-size: 1.2rem; font-weight: 700; color: var(--rust);
+    }
+    .book-price span { font-size: 0.75rem; font-weight: 400; color: var(--muted); text-decoration: line-through; margin-left: 4px; }
+    .buy-btn {
+      background: var(--brown); color: #fff;
+      border: none; border-radius: 4px;
+      padding: 0.4rem 0.8rem; font-size: 0.78rem; font-weight: 500;
+      cursor: pointer; font-family: inherit;
+      transition: background 0.2s;
+    }
+    .buy-btn:hover { background: var(--rust); }
+
+    /* ── STATS STRIP ── */
+    .stats-strip {
+      background: var(--brown); color: #fff;
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 0;
+    }
+    .stat-item {
+      flex: 1; min-width: 160px;
+      text-align: center; padding: 2rem 1rem;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem; font-weight: 900; color: var(--gold);
+    }
+    .stat-label { font-size: 0.82rem; opacity: 0.7; margin-top: 0.3rem; letter-spacing: 0.5px; }
+
+    /* ── CONTACT ── */
+    .contact-section {
+      max-width: 700px; margin: 0 auto; padding: 1rem 2rem 5rem;
+    }
+    .contact-card {
+      background: var(--dark); border-radius: 12px; padding: 3rem;
+      color: #fff; position: relative; overflow: hidden;
+    }
+    .contact-card::before {
+      content: ''; position: absolute; width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(212,167,74,0.15), transparent);
+      top: -100px; right: -100px; border-radius: 50%;
+    }
+    .contact-card h2 {
+      font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700;
+      color: var(--gold); margin-bottom: 0.5rem;
+    }
+    .contact-card p { color: var(--warm); line-height: 1.7; margin-bottom: 2rem; font-size: 0.95rem; }
+    .contact-items { display: flex; flex-direction: column; gap: 1.2rem; }
+    .contact-item {
+      display: flex; align-items: center; gap: 1rem;
+      background: rgba(255,255,255,0.05); border-radius: 8px;
+      padding: 1rem 1.2rem; border: 1px solid rgba(212,167,74,0.2);
+    }
+    .contact-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .contact-label { font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); margin-bottom: 0.2rem; }
+    .contact-value { font-size: 1rem; font-weight: 500; }
+    .contact-value a { color: #fff; text-decoration: none; }
+    .contact-value a:hover { color: var(--gold); }
+    .note {
+      margin-top: 2rem; padding: 1rem;
+      background: rgba(192,82,42,0.15); border-left: 3px solid var(--rust);
+      border-radius: 4px; font-size: 0.85rem; color: var(--warm); line-height: 1.6;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark); border-top: 1px solid rgba(255,255,255,0.05);
+      text-align: center; padding: 1.5rem;
+      font-size: 0.82rem; color: var(--muted);
+    }
+    footer span { color: var(--gold); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(26,18,9,0.8); align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 12px; max-width: 480px; width: 100%;
+      overflow: hidden; animation: popIn 0.25s ease;
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .modal-cover {
+      height: 160px; display: flex; align-items: center; justify-content: center;
+      font-size: 5rem;
+    }
+    .modal-body { padding: 1.5rem 2rem 2rem; }
+    .modal-body h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; }
+    .modal-body .modal-author { color: var(--muted); font-size: 0.85rem; margin: 0.2rem 0 1rem; }
+    .modal-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .modal-desc { font-size: 0.88rem; color: var(--text); line-height: 1.7; margin-bottom: 1.5rem; }
+    .modal-price-row { display: flex; align-items: center; justify-content: space-between; }
+    .modal-price { font-size: 1.6rem; font-weight: 700; color: var(--rust); }
+    .modal-close {
+      background: var(--cream); border: none; border-radius: 4px;
+      padding: 0.6rem 1.2rem; cursor: pointer; font-family: inherit; font-size: 0.85rem;
+      color: var(--muted); transition: background 0.2s;
+    }
+    .modal-close:hover { background: var(--warm); }
+    .modal-buy {
+      background: var(--rust); color: #fff; border: none; border-radius: 4px;
+      padding: 0.7rem 1.5rem; cursor: pointer; font-family: inherit; font-weight: 500;
+      transition: background 0.2s;
+    }
+    .modal-buy:hover { background: #a8441f; }
+
+    @media (max-width: 600px) {
+      nav ul { gap: 1rem; }
+      .contact-card { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Page<span>Turner</span></div>
+  <ul>
+    <li><a href="#books">Books</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">✦ Second-Hand Books · Cheap Prices</div>
+  <h1>Great books deserve<br/><em>a second life.</em></h1>
+  <p>Hand-picked collection of pre-loved books sold at a fraction of retail price. Every book is checked, clean, and ready to read.</p>
+  <div class="hero-btns">
+    <a href="#books" class="btn-primary">Browse Collection</a>
+    <a href="#contact" class="btn-outline">How to Buy</a>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat-item"><div class="stat-num">100+</div><div class="stat-label">Books Available</div></div>
+  <div class="stat-item"><div class="stat-num">60%</div><div class="stat-label">Below Retail Price</div></div>
+  <div class="stat-item"><div class="stat-num">Fast</div><div class="stat-label">WhatsApp Response</div></div>
+  <div class="stat-item"><div class="stat-num">COD</div><div class="stat-label">Cash on Delivery</div></div>
+</div>
+
+<!-- BOOKS -->
+<div class="section-header" id="books">
+  <h2>My Book Collection</h2>
+  <p>All books are original editions in good-to-great condition</p>
+  <div class="divider"></div>
+</div>
+
+<section class="books-section">
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterBooks('all', this)">All Books</button>
+    <button class="filter-btn" onclick="filterBooks('self-help', this)">Self-Help</button>
+    <button class="filter-btn" onclick="filterBooks('business', this)">Business</button>
+    <button class="filter-btn" onclick="filterBooks('biography', this)">Biography</button>
+    <button class="filter-btn" onclick="filterBooks('tech', this)">Tech</button>
+  </div>
+  <div class="book-grid" id="bookGrid"></div>
+</section>
+
+<!-- CONTACT -->
+<div class="section-header" id="contact">
+  <h2>How to Purchase</h2>
+  <p>Simple, fast, and friendly</p>
+  <div class="divider"></div>
+</div>
+<section class="contact-section">
+  <div class="contact-card">
+    <h2>Get in Touch 📬</h2>
+    <p>See a book you like? Just WhatsApp or email me with the book name. I'll confirm availability, share photos, and we sort out delivery or pickup!</p>
+    <div class="contact-items">
+      <div class="contact-item">
+        <div class="contact-icon">📱</div>
+        <div>
+          <div class="contact-label">WhatsApp / Call</div>
+          <!-- REPLACE with your number -->
+          <div class="contact-value"><a href="tel:+919999999999">+91 99999 99999</a></div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">✉️</div>
+        <div>
+          <div class="contact-label">Email</div>
+          <!-- REPLACE with your email -->
+          <div class="contact-value"><a href="mailto:yourname@gmail.com">yourname@gmail.com</a></div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">📍</div>
+        <div>
+          <div class="contact-label">Location</div>
+          <!-- REPLACE with your city -->
+          <div class="contact-value">Your City, India</div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      💡 <strong>How it works:</strong> Message me the book name → I'll send real photos → We agree on price & delivery → Pay on delivery or UPI. No advance needed!
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Made with ❤️ · <span>PageTurner</span> · Second-hand books, first-class reads</p>
+  <p style="margin-top:0.4rem">💡 Tip: Replace photos, contact info, and book details to personalise this site.</p>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-cover" id="modalCover"></div>
+    <div class="modal-body">
+      <h3 id="modalTitle"></h3>
+      <p class="modal-author" id="modalAuthor"></p>
+      <div class="modal-meta" id="modalMeta"></div>
+      <p class="modal-desc" id="modalDesc"></p>
+      <div class="modal-price-row">
+        <div class="modal-price" id="modalPrice"></div>
+        <div style="display:flex;gap:0.5rem">
+          <button class="modal-close" onclick="document.getElementById('modalOverlay').classList.remove('open')">Close</button>
+          <button class="modal-buy" id="modalBuyBtn">💬 WhatsApp to Buy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── BOOK DATA ── (edit freely!)
+const books = [
+  {
+    title: "Emotional Intelligence",
+    author: "Daniel Goleman",
+    genre: "self-help",
+    genreLabel: "Self-Help",
+    price: 120,
+    mrp: 399,
+    condition: "great",
+    emoji: "🧠",
+    bg: "#e8f4f8",
+    desc: "Why it can matter more than IQ. A groundbreaking book that redefined what it means to be smart.",
+    available: true
+  },
+  {
+    title: "Steve Jobs",
+    author: "Walter Isaacson",
+    genre: "biography",
+    genreLabel: "Biography",
+    price: 150,
+    mrp: 599,
+    condition: "good",
+    emoji: "🍎",
+    bg: "#f8f0e8",
+    desc: "The exclusive biography of Apple's visionary co-founder — based on 40+ interviews with Jobs himself.",
+    available: true
+  },
+  {
+    title: "How Google Works",
+    author: "Eric Schmidt & Jonathan Rosenberg",
+    genre: "business",
+    genreLabel: "Business",
+    price: 100,
+    mrp: 499,
+    condition: "great",
+    emoji: "🔍",
+    bg: "#e8f8e8",
+    desc: "An inside look at how Google built the world's most innovative company — and how you can apply those lessons.",
+    available: true
+  },
+  {
+    title: "Atomic Habits",
+    author: "James Clear",
+    genre: "self-help",
+    genreLabel: "Self-Help",
+    price: 130,
+    mrp: 449,
+    condition: "great",
+    emoji: "⚛️",
+    bg: "#f0e8f8",
+    desc: "Tiny changes, remarkable results. The definitive guide to building good habits and breaking bad ones.",
+    available: true
+  },
+  {
+    title: "The Lean Startup",
+    author: "Eric Ries",
+    genre: "business",
+    genreLabel: "Business",
+    price: 110,
+    mrp: 499,
+    condition: "good",
+    emoji: "🚀",
+    bg: "#fff0e0",
+    desc: "How today's entrepreneurs use continuous innovation to create radically successful businesses.",
+    available: true
+  },
+  {
+    title: "Deep Work",
+    author: "Cal Newport",
+    genre: "self-help",
+    genreLabel: "Self-Help",
+    price: 90,
+    mrp: 399,
+    condition: "ok",
+    emoji: "🎯",
+    bg: "#e0f0ff",
+    desc: "Rules for focused success in a distracted world. Reclaim your ability to do cognitively demanding tasks.",
+    available: true
+  },
+  {
+    title: "The Innovators",
+    author: "Walter Isaacson",
+    genre: "tech",
+    genreLabel: "Tech",
+    price: 140,
+    mrp: 599,
+    condition: "great",
+    emoji: "💡",
+    bg: "#ffe8e8",
+    desc: "How a group of hackers, geniuses, and geeks created the digital revolution.",
+    available: false
+  },
+  {
+    title: "Zero to One",
+    author: "Peter Thiel",
+    genre: "business",
+    genreLabel: "Business",
+    price: 100,
+    mrp: 399,
+    condition: "good",
+    emoji: "1️⃣",
+    bg: "#e8ffe8",
+    desc: "Notes on startups, or how to build the future. Peter Thiel's contrarian philosophy on innovation.",
+    available: true
+  }
+];
+
+let currentFilter = 'all';
+
+function conditionClass(c) {
+  if (c === 'great') return 'condition-great';
+  if (c === 'good') return 'condition-good';
+  return 'condition-ok';
+}
+function conditionLabel(c) {
+  if (c === 'great') return '✦ Like New';
+  if (c === 'good') return '✓ Good';
+  return '~ Acceptable';
+}
+
+function renderBooks(filter) {
+  const grid = document.getElementById('bookGrid');
+  const filtered = filter === 'all' ? books : books.filter(b => b.genre === filter);
+  grid.innerHTML = filtered.map((b, i) => `
+    <div class="book-card" style="animation-delay:${i*0.07}s" onclick="openModal(${books.indexOf(b)})">
+      <div class="book-cover" style="background:${b.bg}">
+        <span>${b.emoji}</span>
+        ${!b.available ? '<span class="sold-badge">Sold</span>' : ''}
+        <span class="condition-badge ${conditionClass(b.condition)}">${conditionLabel(b.condition)}</span>
+      </div>
+      <div class="book-info">
+        <div class="book-title">${b.title}</div>
+        <div class="book-author">by ${b.author}</div>
+        <span class="book-genre">${b.genreLabel}</span>
+        <div class="book-price-row">
+          <div class="book-price">₹${b.price} <span>₹${b.mrp}</span></div>
+          <button class="buy-btn" onclick="event.stopPropagation(); whatsapp('${b.title}', ${b.price})" ${!b.available ? 'disabled style="opacity:.4;cursor:default"' : ''}>
+            ${b.available ? 'Buy' : 'Sold'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterBooks(genre, btn) {
+  currentFilter = genre;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBooks(genre);
+}
+
+function openModal(idx) {
+  const b = books[idx];
+  document.getElementById('modalCover').style.background = b.bg;
+  document.getElementById('modalCover').innerHTML = `<span style="font-size:5rem">${b.emoji}</span>`;
+  document.getElementById('modalTitle').textContent = b.title;
+  document.getElementById('modalAuthor').textContent = 'by ' + b.author;
+  document.getElementById('modalMeta').innerHTML = `
+    <span class="book-genre">${b.genreLabel}</span>
+    <span class="condition-badge ${conditionClass(b.condition)}" style="position:relative;top:0;left:0">${conditionLabel(b.condition)}</span>
+  `;
+  document.getElementById('modalDesc').textContent = b.desc;
+  document.getElementById('modalPrice').textContent = `₹${b.price}`;
+  const buyBtn = document.getElementById('modalBuyBtn');
+  if (b.available) {
+    buyBtn.disabled = false; buyBtn.style.opacity = 1;
+    buyBtn.onclick = () => whatsapp(b.title, b.price);
+  } else {
+    buyBtn.disabled = true; buyBtn.style.opacity = 0.4; buyBtn.textContent = 'Sold Out';
+  }
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+}
+
+function whatsapp(title, price) {
+  // REPLACE 919999999999 with your actual number (country code + number, no +)
+  const num = '919999999999';
+  const msg = encodeURIComponent(`Hi! I'm interested in buying "${title}" listed at ₹${price} on your PageTurner website. Is it still available?`);
+  window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
+}
+
+// Init
+renderBooks('all');
+</script>
+</body>
+</html>
